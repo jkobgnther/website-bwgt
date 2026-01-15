@@ -1,0 +1,13 @@
+# Instagram Posts Configuration
+# Add one Instagram post URL per line
+# Lines starting with # are comments and will be ignored
+# Empty lines will be ignored
+# Posts will be distributed across 2 columns automatically
+
+https://www.instagram.com/p/DQBwgUqjF3y/
+https://www.instagram.com/p/DMKxRd4MdBw/
+https://www.instagram.com/p/CyVRGFfsSZ-/
+https://www.instagram.com/p/DMKx1dtszeO/
+https://www.instagram.com/p/DRSkOggCOd5/
+https://www.instagram.com/reel/DPGT7g1CO0k/
+
