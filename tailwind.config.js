@@ -34,19 +34,7 @@ module.exports = {
           800: '#a09c45',
           900: '#86823b',
         },
-        // Green from blocks
-        green: {
-          50: '#f0f9f5',
-          100: '#d4ede0',
-          200: '#b8e1cb',
-          300: '#9cd5b6',
-          400: '#80c9a1',
-          500: '#7FBF97', // Main block green
-          600: '#6ba87f',
-          700: '#579167',
-          800: '#437a4f',
-          900: '#2f6337',
-        },
+
         // Blue from blocks
         blue: {
           50: '#f0fafa',
@@ -88,4 +76,3 @@ module.exports = {
   },
   plugins: [],
 }
-

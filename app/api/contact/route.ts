@@ -1,6 +1,40 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { Resend } from 'resend'
 
+// TypeScript interfaces for form data
+interface BaseFormData {
+  email: string
+  nachname: string
+  nachricht: string
+  vorname?: string
+  anrede?: string
+  telefon?: string
+}
+
+interface BeratungFormData extends BaseFormData {
+  geschlecht?: string
+  wohnort?: string
+  alter?: string
+  art?: string
+}
+
+interface ContactFormRequest {
+  formType: 'beratung' | 'contact'
+  [key: string]: any
+}
+
+// Simple HTML escaping to prevent injection
+function escapeHtml(text: string): string {
+  const map: { [key: string]: string } = {
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }
+  return text.replace(/[&<>"']/g, (m) => map[m])
+}
+
 export async function POST(request: NextRequest) {
   try {
     // Check if API key is configured
@@ -15,7 +49,7 @@ export async function POST(request: NextRequest) {
     const resend = new Resend(process.env.RESEND_API_KEY)
 
     // Parse request body
-    let body
+    let body: ContactFormRequest
     try {
       body = await request.json()
     } catch (parseError) {
@@ -36,14 +70,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Determine email subject and recipient
-    const subject = formType === 'beratung' 
+    const subject = formType === 'beratung'
       ? `Beratungsanfrage von ${formData.vorname || ''} ${formData.nachname}`.trim()
       : `Kontaktanfrage von ${formData.vorname || ''} ${formData.nachname}`.trim()
 
     const recipientEmail = process.env.CONTACT_EMAIL || 'guenther@bwgt.org'
 
     // Format email content
-    const emailContent = formatEmailContent(formType, formData)
+    const emailContent = formatEmailContent(formType, formData as BeratungFormData)
 
     // Send email using Resend
     const { data, error } = await resend.emails.send({
@@ -76,9 +110,9 @@ export async function POST(request: NextRequest) {
   }
 }
 
-function formatEmailContent(formType: string, data: any): string {
+function formatEmailContent(formType: string, data: BeratungFormData): string {
   const isBeratung = formType === 'beratung'
-  
+
   let html = `
     <!DOCTYPE html>
     <html>
@@ -103,37 +137,37 @@ function formatEmailContent(formType: string, data: any): string {
         <div class="content">
   `
 
-  // Add form fields
+  // Add form fields with HTML escaping
   if (data.anrede) {
-    html += `<div class="field"><div class="label">Anrede:</div><div class="value">${data.anrede}</div></div>`
+    html += `<div class="field"><div class="label">Anrede:</div><div class="value">${escapeHtml(data.anrede)}</div></div>`
   }
   if (data.vorname) {
-    html += `<div class="field"><div class="label">Vorname:</div><div class="value">${data.vorname}</div></div>`
+    html += `<div class="field"><div class="label">Vorname:</div><div class="value">${escapeHtml(data.vorname)}</div></div>`
   }
-  html += `<div class="field"><div class="label">Nachname:</div><div class="value">${data.nachname}</div></div>`
-  
+  html += `<div class="field"><div class="label">Nachname:</div><div class="value">${escapeHtml(data.nachname)}</div></div>`
+
   if (data.telefon) {
-    html += `<div class="field"><div class="label">Telefon:</div><div class="value">${data.telefon}</div></div>`
+    html += `<div class="field"><div class="label">Telefon:</div><div class="value">${escapeHtml(data.telefon)}</div></div>`
   }
-  html += `<div class="field"><div class="label">E-Mail:</div><div class="value">${data.email}</div></div>`
+  html += `<div class="field"><div class="label">E-Mail:</div><div class="value">${escapeHtml(data.email)}</div></div>`
 
   // Beratung-specific fields
   if (isBeratung) {
     if (data.geschlecht) {
-      html += `<div class="field"><div class="label">Geschlecht:</div><div class="value">${data.geschlecht}</div></div>`
+      html += `<div class="field"><div class="label">Geschlecht:</div><div class="value">${escapeHtml(data.geschlecht)}</div></div>`
     }
     if (data.wohnort) {
-      html += `<div class="field"><div class="label">Wohnort:</div><div class="value">${data.wohnort}</div></div>`
+      html += `<div class="field"><div class="label">Wohnort:</div><div class="value">${escapeHtml(data.wohnort)}</div></div>`
     }
     if (data.alter) {
-      html += `<div class="field"><div class="label">Alter:</div><div class="value">${data.alter}</div></div>`
+      html += `<div class="field"><div class="label">Alter:</div><div class="value">${escapeHtml(data.alter)}</div></div>`
     }
     if (data.art) {
-      html += `<div class="field"><div class="label">Gewünschte Sport-/Bewegungsart:</div><div class="value">${data.art}</div></div>`
+      html += `<div class="field"><div class="label">Gewünschte Sport-/Bewegungsart:</div><div class="value">${escapeHtml(data.art)}</div></div>`
     }
   }
 
-  html += `<div class="field"><div class="label">Nachricht:</div><div class="value">${data.nachricht.replace(/\n/g, '<br>')}</div></div>`
+  html += `<div class="field"><div class="label">Nachricht:</div><div class="value">${escapeHtml(data.nachricht).replace(/\n/g, '<br>')}</div></div>`
 
   html += `
           <div class="footer">
@@ -148,4 +182,3 @@ function formatEmailContent(formType: string, data: any): string {
 
   return html
 }
-

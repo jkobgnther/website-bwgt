@@ -1,8 +1,6 @@
 import type { Metadata } from 'next'
-import { InstagramFeed } from '@/components/InstagramFeed'
+import { Instagram } from '@/components/Instagram'
 import Image from 'next/image'
-import { InstagramImageOnly } from '@/components/InstagramImageOnly'
-import { InstagramPostFull } from '@/components/InstagramPostFull'
 import fs from 'fs'
 import path from 'path'
 
@@ -16,19 +14,19 @@ export const metadata: Metadata = {
 function getInstagramPosts(): string[] {
   const filePath = path.join(process.cwd(), 'instagram-posts.txt')
   const fileContent = fs.readFileSync(filePath, 'utf-8')
-  
+
   // Filter out comments and empty lines
   const urls = fileContent
     .split('\n')
     .map(line => line.trim())
     .filter(line => line && !line.startsWith('#'))
-  
+
   return urls
 }
 
 export default function Blog() {
   const instagramPosts = getInstagramPosts()
-  
+
   // Split posts into two columns (alternating distribution)
   const leftColumnPosts = instagramPosts.filter((_, index) => index % 2 === 0)
   const rightColumnPosts = instagramPosts.filter((_, index) => index % 2 === 1)
@@ -64,14 +62,14 @@ export default function Blog() {
                 {/* Left Column */}
                 <div className="flex-1 max-w-xl space-y-8 mx-auto md:mx-0">
                   {leftColumnPosts.map((url, index) => (
-                    <InstagramPostFull key={`left-${index}`} url={url} />
+                    <Instagram key={`left-${index}`} url={url} />
                   ))}
                 </div>
-                
+
                 {/* Right Column */}
                 <div className="flex-1 max-w-xl space-y-8 mx-auto md:mx-0">
                   {rightColumnPosts.map((url, index) => (
-                    <InstagramPostFull key={`right-${index}`} url={url} />
+                    <Instagram key={`right-${index}`} url={url} />
                   ))}
                 </div>
               </div>
